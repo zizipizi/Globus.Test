@@ -3,7 +3,7 @@ using MediatR;
 
 namespace Globus.Test.Application.Commands.DeleteProduct;
 
-public class DeleteProductCommandHandler : IRequestHandler<DeleteProductCommand>
+public class DeleteProductCommandHandler : IRequestHandler<DeleteProductCommand, int>
 {
     private readonly IProductRepository _productRepository;
 
@@ -12,8 +12,13 @@ public class DeleteProductCommandHandler : IRequestHandler<DeleteProductCommand>
         _productRepository = productRepository;
     }
 
-    public async Task Handle(DeleteProductCommand request, CancellationToken cancellationToken)
+    public async Task<int> Handle(DeleteProductCommand request, CancellationToken cancellationToken)
     {
+        var product = await _productRepository.GetProductById(request.Id, cancellationToken);
+        if (product is null)
+            return int.MinValue;
+            
         await _productRepository.Delete(request.Id, cancellationToken);
+        return request.Id;
     }
 }

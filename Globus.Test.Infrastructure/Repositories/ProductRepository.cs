@@ -50,11 +50,19 @@ internal class ProductRepository : IProductRepository
         _productCache.Remove(id);
     }
 
-    public async Task AddOrUpdate(Product product, CancellationToken cancellationToken = default)
+    public async Task Create(Product product, CancellationToken cancellationToken = default)
+    {
+        var entity = await _dbContext.Products.AddAsync(product, cancellationToken);
+        
+        await _dbContext.SaveChangesAsync(cancellationToken);
+        _productCache.AddOrUpdate(entity.Entity.Id, entity.Entity);
+    }
+
+    public Task Update(Product product)
     {
         _dbContext.Products.Update(product);
-        await _dbContext.SaveChangesAsync(cancellationToken);
-        
         _productCache.AddOrUpdate(product.Id, product);
+        
+        return Task.CompletedTask;
     }
 }

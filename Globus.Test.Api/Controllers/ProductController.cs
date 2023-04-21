@@ -30,7 +30,11 @@ public class ProductController : ControllerBase
     [Route("api/v1/products/{id}")]
     public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
     {
-        await _mediator.Send(new DeleteProductCommand {Id = id}, cancellationToken);
+        var result = await _mediator.Send(new DeleteProductCommand {Id = id}, cancellationToken);
+
+        if (result == int.MinValue)
+            return NotFound();
+        
         return Ok();
     }
 
@@ -39,6 +43,10 @@ public class ProductController : ControllerBase
     public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(new GetProductByIdQuery {Id = id}, cancellationToken);
+
+        if (result is null)
+            return NotFound();
+        
         return Ok(result);
     }
     

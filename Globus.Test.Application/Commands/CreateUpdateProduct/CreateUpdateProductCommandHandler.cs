@@ -15,11 +15,24 @@ public class CreateUpdateProductCommandHandler : IRequestHandler<CreateUpdatePro
 
     public async Task Handle(CreateUpdateProductCommand request, CancellationToken cancellationToken)
     {
-        await _productRepository.AddOrUpdate(new Product
+        var product = await _productRepository.GetProductById(request.Id, cancellationToken);
+
+        if (product is null)
         {
-            Id = request.Id,
-            Name = request.Name,
-            Number = request.Number
-        }, cancellationToken);
+            await _productRepository.Create(new Product
+            {
+                Name = request.Name,
+                Number = request.Number
+            }, cancellationToken);
+        }
+        else
+        {
+            await _productRepository.Update(new Product
+            {
+                Id = request.Id,
+                Name = request.Name,
+                Number = request.Number
+            });
+        }
     }
 }

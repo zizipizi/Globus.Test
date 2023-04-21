@@ -1,0 +1,31 @@
+﻿version: '3.9'
+services:
+  globus_test_product_service:
+    build:
+      context: .
+      dockerfile: Globus.Test.Api/Dockerfile
+    ports:
+      - "5000:80"
+      - "5001:443"
+    depends_on:
+      - globus_test_db
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__PostgresConnection=Host=globus_test_db;Database=globus_test;Username=postgres;Password=postgrespw
+    networks:
+      - my-network
+  globus_test_db:
+    image: postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgrespw
+    ports:
+      - "49153:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - my-network
+networks:
+  my-network:
+volumes:
+  postgres-data:
